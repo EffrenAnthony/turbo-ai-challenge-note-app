@@ -1,86 +1,83 @@
-import { ApiError } from '@/types/api'
-import { getAccessToken } from '@/lib/auth/tokens'
+import axios from 'axios'
+import { getAccessToken, getRefreshToken, setTokens, clearTokens } from '@/lib/auth/tokens'
 import { API_URL } from '@/lib/utils/constants'
 
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const error: ApiError = {
-      message: response.statusText,
-      status: response.status,
-    }
-
-    try {
-      const body = await response.json()
-      error.message = body.message ?? body.detail ?? response.statusText
-      error.errors = body.errors
-    } catch {
-      // Response body is not JSON
-    }
-
-    throw error
-  }
-
-  if (response.status === 204) {
-    return undefined as T
-  }
-
-  return response.json()
-}
-
-function getHeaders(): HeadersInit {
-  const headers: HeadersInit = {
+export const apiClient = axios.create({
+  baseURL: API_URL,
+  headers: {
     'Content-Type': 'application/json',
-  }
+  },
+})
 
+apiClient.interceptors.request.use((config) => {
   const token = getAccessToken()
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`
   }
+  return config
+})
 
-  return headers
+let isRefreshing = false
+let failedQueue: Array<{
+  resolve: (token: string) => void
+  reject: (error: unknown) => void
+}> = []
+
+function processQueue(error: unknown, token: string | null) {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error)
+    } else {
+      resolve(token!)
+    }
+  })
+  failedQueue = []
 }
 
-export const apiClient = {
-  async get<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${API_URL}${endpoint}`, {
-      method: 'GET',
-      headers: getHeaders(),
-    })
-    return handleResponse<T>(response)
-  },
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
 
-  async post<T>(endpoint: string, data?: unknown): Promise<T> {
-    const response = await fetch(`${API_URL}${endpoint}`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: data ? JSON.stringify(data) : undefined,
-    })
-    return handleResponse<T>(response)
-  },
+    if (error.response?.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error)
+    }
 
-  async put<T>(endpoint: string, data: unknown): Promise<T> {
-    const response = await fetch(`${API_URL}${endpoint}`, {
-      method: 'PUT',
-      headers: getHeaders(),
-      body: JSON.stringify(data),
-    })
-    return handleResponse<T>(response)
-  },
+    const refreshToken = getRefreshToken()
+    if (!refreshToken) {
+      clearTokens()
+      return Promise.reject(error)
+    }
 
-  async patch<T>(endpoint: string, data: unknown): Promise<T> {
-    const response = await fetch(`${API_URL}${endpoint}`, {
-      method: 'PATCH',
-      headers: getHeaders(),
-      body: JSON.stringify(data),
-    })
-    return handleResponse<T>(response)
-  },
+    if (isRefreshing) {
+      return new Promise<string>((resolve, reject) => {
+        failedQueue.push({ resolve, reject })
+      }).then((token) => {
+        originalRequest.headers.Authorization = `Bearer ${token}`
+        return apiClient(originalRequest)
+      })
+    }
 
-  async delete<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${API_URL}${endpoint}`, {
-      method: 'DELETE',
-      headers: getHeaders(),
-    })
-    return handleResponse<T>(response)
+    isRefreshing = true
+    originalRequest._retry = true
+
+    try {
+      const { data } = await axios.post(`${API_URL}/auth/token/refresh/`, {
+        refresh: refreshToken,
+      })
+      setTokens(data.access, data.refresh)
+      processQueue(null, data.access)
+      originalRequest.headers.Authorization = `Bearer ${data.access}`
+      return apiClient(originalRequest)
+    } catch (refreshError) {
+      processQueue(refreshError, null)
+      clearTokens()
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login'
+      }
+      return Promise.reject(refreshError)
+    } finally {
+      isRefreshing = false
+    }
   },
-}
+)

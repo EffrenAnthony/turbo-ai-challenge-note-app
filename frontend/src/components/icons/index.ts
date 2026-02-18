@@ -1,0 +1,6 @@
+export { EyeIcon } from './EyeIcon'
+export { EyeOffIcon } from './EyeOffIcon'
+export { ChevronDownIcon } from './ChevronDownIcon'
+export { CloseIcon } from './CloseIcon'
+export { MicrophoneIcon } from './MicrophoneIcon'
+export { PlusIcon } from './PlusIcon'

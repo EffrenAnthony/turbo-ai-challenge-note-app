@@ -1,4 +1,9 @@
-// TODO: Implement notes hook for CRUD operations
+import { useQuery } from '@tanstack/react-query'
+import { getNotes } from '@/lib/api/notes'
+
 export function useNotes() {
-  throw new Error('useNotes not yet implemented')
+  return useQuery({
+    queryKey: ['notes'],
+    queryFn: getNotes,
+  })
 }

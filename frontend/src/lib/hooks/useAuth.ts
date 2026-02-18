@@ -1,4 +1,12 @@
-// TODO: Implement auth hook with AuthProvider context
-export function useAuth() {
-  throw new Error('useAuth must be used within an AuthProvider')
+'use client'
+
+import { useContext } from 'react'
+import { AuthContext, type AuthContextValue } from '@/components/providers/AuthProvider'
+
+export function useAuth(): AuthContextValue {
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
 }

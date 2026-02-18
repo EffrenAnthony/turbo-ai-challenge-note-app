@@ -1,14 +1,16 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Inter, Inria_Serif } from 'next/font/google'
+import { Providers } from '@/components/providers/Providers'
 import './globals.css'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
 })
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const inriaSerif = Inria_Serif({
+  variable: '--font-inria-serif',
+  weight: ['300', '400', '700'],
   subsets: ['latin'],
 })
 
@@ -23,8 +25,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+    <html lang="es" className={`${inter.variable} ${inriaSerif.variable}`}>
+      <body className="font-sans antialiased">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   )
 }

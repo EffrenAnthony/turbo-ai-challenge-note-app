@@ -1,4 +1,9 @@
-// TODO: Implement categories hook for fetching categories
+import { useQuery } from '@tanstack/react-query'
+import { getCategories } from '@/lib/api/categories'
+
 export function useCategories() {
-  throw new Error('useCategories not yet implemented')
+  return useQuery({
+    queryKey: ['categories'],
+    queryFn: getCategories,
+  })
 }

@@ -1,1 +1,70 @@
 @import 'tailwindcss';
+
+@theme {
+  /* ──────────────────────────────────────────────
+   * Typography
+   * ────────────────────────────────────────────── */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-inria-serif), ui-serif, Georgia, serif;
+
+  /* ──────────────────────────────────────────────
+   * Sunset (base: #EF9C66) — warm orange
+   * ────────────────────────────────────────────── */
+  --color-sunset-50: #fef6f0;
+  --color-sunset-100: #fdeadb;
+  --color-sunset-200: #fad1b2;
+  --color-sunset-300: #f5b485;
+  --color-sunset-400: #ef9c66;
+  --color-sunset-500: #e67a35;
+  --color-sunset-600: #d4612a;
+  --color-sunset-700: #b04a24;
+  --color-sunset-800: #8d3c22;
+  --color-sunset-900: #73331f;
+  --color-sunset-950: #3e180d;
+
+  /* ──────────────────────────────────────────────
+   * Honey (base: #FCDC94) — warm golden yellow
+   * honey-100 (#FAF1E3) is the app background
+   * ────────────────────────────────────────────── */
+  --color-honey-50: #fefaee;
+  --color-honey-100: #faf1e3;
+  --color-honey-200: #fdeabd;
+  --color-honey-300: #fcdc94;
+  --color-honey-400: #f9c85e;
+  --color-honey-500: #f4ae38;
+  --color-honey-600: #de912a;
+  --color-honey-700: #b96e22;
+  --color-honey-800: #955622;
+  --color-honey-900: #7a4720;
+  --color-honey-950: #42240e;
+
+  /* ──────────────────────────────────────────────
+   * Sage (base: #C8CFA0) — muted green
+   * ────────────────────────────────────────────── */
+  --color-sage-50: #f7f8f0;
+  --color-sage-100: #eef0df;
+  --color-sage-200: #dde2c1;
+  --color-sage-300: #c8cfa0;
+  --color-sage-400: #b0ba7d;
+  --color-sage-500: #95a15f;
+  --color-sage-600: #768249;
+  --color-sage-700: #5c653a;
+  --color-sage-800: #4a5132;
+  --color-sage-900: #3f442c;
+  --color-sage-950: #212515;
+
+  /* ──────────────────────────────────────────────
+   * Jade (base: #78ABA8) — cool teal
+   * ────────────────────────────────────────────── */
+  --color-jade-50: #f2f9f8;
+  --color-jade-100: #e0efed;
+  --color-jade-200: #c4e0dd;
+  --color-jade-300: #9ecac6;
+  --color-jade-400: #78aba8;
+  --color-jade-500: #5b918f;
+  --color-jade-600: #487676;
+  --color-jade-700: #3e6161;
+  --color-jade-800: #364f50;
+  --color-jade-900: #314344;
+  --color-jade-950: #1b2829;
+}
