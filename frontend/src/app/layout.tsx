@@ -16,7 +16,11 @@ const inriaSerif = Inria_Serif({
 
 export const metadata: Metadata = {
   title: 'Notes App',
-  description: 'A full-featured notes application',
+  description:
+    'A full-stack notes application with JWT authentication, category management, and voice dictation. Built with Django REST Framework and Next.js.',
+  icons: {
+    icon: '/assets/favicon.ico',
+  },
 }
 
 export default function RootLayout({
