@@ -46,7 +46,7 @@ export function NoteForm({ note }: NoteFormProps) {
     if (formik.dirty) {
       debouncedSave({ title, content })
     }
-  }, [formik.values.title, formik.values.content])
+  }, [formik.values.title, formik.values.content, debouncedSave, formik.dirty, formik.values])
 
   function handleCategoryChange(category: Category) {
     formik.setFieldValue('category_id', category.id)

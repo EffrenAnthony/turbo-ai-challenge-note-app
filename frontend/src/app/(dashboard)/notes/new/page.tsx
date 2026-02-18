@@ -22,7 +22,7 @@ export default function NewNotePage() {
       hasCreated.current = true
       mutation.mutate({ title: 'Untitled', content: '.', category_id: 1 })
     }
-  }, [])
+  }, [mutation])
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-honey-100">

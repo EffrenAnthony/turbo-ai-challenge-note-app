@@ -445,6 +445,104 @@ A client component that:
 
 Simply redirects to `/notes/[id]` — the edit and detail views are unified.
 
+### Phase 7: Refactoring & Component Extraction
+
+The `NoteForm` component grew to over 300 lines with multiple responsibilities. It was refactored into independent, focused pieces:
+
+| Extracted Piece | File | Responsibility |
+| --- | --- | --- |
+| `CategoryDropdown` | `components/forms/CategoryDropdown.tsx` | Dropdown state, click-outside detection, category selection UI |
+| `DictationButton` | `components/forms/DictationButton.tsx` | Web Speech API lifecycle, mic button with pulse animation |
+| `useAutosave` | `lib/hooks/useAutosave.ts` | Debounced mutation, `isSaving` state, `debouncedSave` / `saveImmediately` |
+| `NoteForm` (refactored) | `components/forms/NoteForm.tsx` | Composes the above with Formik form state (reduced from 304 to 130 lines) |
+
+Additionally, `LoginForm` and `RegisterForm` were migrated from manual `useState` management to **Formik** for consistency across all forms in the project.
+
+All inline SVG icons were extracted into `components/icons/` as individual React components with a barrel export in `index.ts`:
+
+| Icon | Component | Used In |
+| --- | --- | --- |
+| Eye (show password) | `EyeIcon` | Input |
+| Eye-off (hide password) | `EyeOffIcon` | Input |
+| Chevron down | `ChevronDownIcon` | CategoryDropdown |
+| Close (X) | `CloseIcon` | NoteForm |
+| Microphone | `MicrophoneIcon` | DictationButton |
+| Plus | `PlusIcon` | Notes page (New Note button) |
+
+### Phase 8: Unit Testing
+
+Unit tests were written using **Jest** and **React Testing Library** to cover the custom components and utility functions of the project.
+
+#### Test Setup
+
+- **Jest 30** with `jsdom` environment for browser API simulation
+- **React Testing Library** for component rendering and DOM queries
+- **`@testing-library/user-event`** for realistic user interaction simulation (click, type, tab)
+- Tests follow the convention of mirroring the `src/` structure under `src/__tests__/`
+- Shared mock data lives in `src/__tests__/mocks/data.ts` with typed `Note` and `Category` fixtures
+
+#### What Was Covered and Why
+
+**UI Components (Button, Card, Input, Spinner)** — 28 tests
+
+These are the foundation of the design system. Testing them ensures that:
+- Color variants render correctly across all four theme colors
+- Props are forwarded properly (className, HTML attributes, disabled state)
+- Interactive behavior works (Button click handlers, Input password toggle)
+- Accessibility attributes are present (Spinner `role="status"`, Input `aria-label`)
+
+**Icon Components** — 12 tests
+
+All six icons are tested via a single parameterized test suite (`describe.each`) to verify they render an SVG element and accept a `className` prop. This ensures icons remain functional as pure render components.
+
+**Note Components (NoteCard, NoteList)** — 10 tests
+
+These are the core display layer of the app. Tests verify:
+- Note data (title, content, category name) renders correctly
+- Links point to the correct detail page (`/notes/{id}`)
+- Bullet point content is parsed and formatted properly
+- Smart dates are displayed (today/yesterday/Month Day)
+- Empty state renders with the correct image and message
+- Notes are sorted by creation date (most recent first)
+
+**Form Components (CategoryDropdown, LoginForm, RegisterForm)** — 17 tests
+
+Forms are the primary user interaction surface. Testing them ensures:
+- **CategoryDropdown**: Opens/closes correctly, excludes the current selection from options, calls `onSelect` with the right category, closes on click outside
+- **LoginForm**: Validates email format and required fields, renders with Formik integration inside a QueryClientProvider
+- **RegisterForm**: Validates password strength rules (length, uppercase, lowercase, digit, special character), shows specific error messages for each violation
+
+**Layout (Sidebar)** — 7 tests
+
+The Sidebar is the main navigation component. Tests verify:
+- All categories render with their names
+- Note counts per category are calculated and displayed correctly
+- Category selection and deselection toggle behavior works
+- Logout triggers `logoutUser()` and redirects to `/login`
+
+**Utility Functions (validation, dates, categoryColors)** — 32 tests
+
+Pure functions are the easiest to test and the most critical to get right since they're used across multiple components:
+- **validation.ts**: Tests `isValidEmail` with valid/invalid inputs, `isValidPassword` with strong/weak passwords, and `getPasswordErrors` to verify each individual rule returns the correct error message
+- **dates.ts**: Tests `formatSmartDate` for today, yesterday, and older date formatting
+- **categoryColors.ts**: Tests the color cycling logic (sunset → honey → jade → sage) and the modulo behavior for indices beyond the palette length
+
+#### What Was Not Covered and Why
+
+- **Pages** (`app/(auth)/login/page.tsx`, `app/(dashboard)/notes/page.tsx`, etc.) — Pages are thin wrappers that compose components. Their logic is already tested through the components they render.
+- **Providers** (`AuthProvider`, `Providers`) — Providers are infrastructure wrappers. Their behavior is implicitly tested through components that consume their context (e.g., Sidebar tests mock `useAuth`).
+- **API functions** (`lib/api/notes.ts`, `lib/api/auth.ts`) — These are thin wrappers around Axios calls. They would require mocking the HTTP layer (e.g., MSW) which is better suited for integration tests.
+- **Middleware** (`middleware.ts`) — Runs in the Next.js edge runtime. Testing it requires a different setup (e.g., `next/test-utils` or integration tests).
+- **NoteForm** — Has deep dependencies (Formik, React Query, useAutosave, CategoryDropdown, DictationButton). Its child components are individually tested. A full integration test of NoteForm would be more valuable than unit testing it in isolation.
+
+#### Running Tests
+
+```bash
+npm run test            # Run all tests
+npm run test:watch      # Watch mode for development
+npm run test:coverage   # Generate coverage report
+```
+
 ---
 
 ## Environment Variables

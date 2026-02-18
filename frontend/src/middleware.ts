@@ -16,6 +16,10 @@ export function middleware(request: NextRequest) {
   // will handle refreshing the access token if it's expired
   const hasSession = !!accessToken || !!refreshToken
 
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL(hasSession ? '/notes' : '/login', request.url))
+  }
+
   if (isProtected && !hasSession) {
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('callbackUrl', pathname)
