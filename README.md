@@ -75,7 +75,9 @@ Development started with the backend to establish a solid API contract before bu
 
 4. **Authentication & Authorization** — Configured SimpleJWT with token rotation and blacklisting. Access tokens expire in 15 minutes, refresh tokens in 7 days. On refresh, the old token is blacklisted and a new pair is issued. Notes are isolated per user through queryset filtering and an `IsOwner` permission class.
 
-5. **Testing** — 52 unit tests covering all models, serializers, views, and edge cases (99% coverage).
+5. **API Documentation** — Set up interactive API documentation using drf-spectacular with OpenAPI 3.0 annotations on all endpoints, available via Swagger UI (`/api/docs/`) and ReDoc (`/api/redoc/`).
+
+6. **Testing** — 52 unit tests covering all models, serializers, views, and edge cases (99% coverage).
 
 ### Frontend Second
 
@@ -106,6 +108,8 @@ With the API contract established, the frontend was built following an Atomic De
 - **Queue-based token refresh** — When multiple API calls fail with 401 simultaneously, the Axios interceptor queues them and only makes one refresh call. After the token is refreshed, all queued requests are replayed with the new token. This prevents race conditions and redundant refresh calls.
 
 - **SQLite for development** — SQLite was chosen for zero-configuration setup. Django's ORM ensures all queries are database-agnostic, so migrating to PostgreSQL or MySQL for production is a configuration change only.
+
+- **API documentation with drf-spectacular** — All backend endpoints are annotated with OpenAPI 3.0 schemas using drf-spectacular. This provides interactive Swagger UI for endpoint testing (`/api/docs/`), ReDoc for readable documentation (`/api/redoc/`), and a raw OpenAPI schema (`/api/schema/`). See the [Backend README](backend/README.md#api-documentation) for details.
 
 ### Frontend Design
 

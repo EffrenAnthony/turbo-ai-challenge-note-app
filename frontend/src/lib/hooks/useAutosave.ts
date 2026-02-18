@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
 import { updateNote } from '@/lib/api/notes'
 import type { UpdateNoteRequest } from '@/types/notes'
 
@@ -20,7 +21,10 @@ export function useAutosave({ noteId, debounceMs = 1500 }: UseAutosaveOptions) {
       queryClient.setQueryData(['note', noteId], updatedNote)
       setIsSaving(false)
     },
-    onError: () => setIsSaving(false),
+    onError: () => {
+      setIsSaving(false)
+      toast.error('Failed to save note')
+    },
   })
 
   const debouncedSave = useCallback(

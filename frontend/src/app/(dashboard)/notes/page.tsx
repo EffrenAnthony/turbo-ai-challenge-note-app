@@ -22,7 +22,7 @@ export default function NotesPage() {
   }, [notesData, selectedCategoryId])
 
   return (
-    <div className="flex min-h-screen bg-honey-100">
+    <div className="flex h-screen bg-honey-100">
       {/* Sidebar — hidden on mobile, visible on md+ */}
       <div className="hidden md:block">
         <Sidebar
@@ -31,8 +31,8 @@ export default function NotesPage() {
         />
       </div>
 
-      {/* Main content */}
-      <div className="flex flex-1 flex-col p-6">
+      {/* Main content — scrollable */}
+      <div className="flex flex-1 flex-col overflow-y-auto p-6">
         {/* Header with New Note button */}
         <div className="flex items-center justify-end">
           <Link href="/notes/new">
@@ -69,7 +69,7 @@ export default function NotesPage() {
             <Spinner className="h-8 w-8 border-honey-300 border-t-sunset-500" />
           </div>
         ) : (
-          <div className="mt-6 flex flex-1">
+          <div className="mt-6 flex flex-1 items-start">
             <NoteList notes={filteredNotes} categories={categories ?? []} />
           </div>
         )}

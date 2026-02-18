@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMutation } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
 import { createNote } from '@/lib/api/notes'
 import { Spinner } from '@/components/ui/Spinner'
 
@@ -14,6 +15,9 @@ export default function NewNotePage() {
     mutationFn: createNote,
     onSuccess: (note) => {
       router.replace(`/notes/${note.id}`)
+    },
+    onError: () => {
+      toast.error('Failed to create note')
     },
   })
 

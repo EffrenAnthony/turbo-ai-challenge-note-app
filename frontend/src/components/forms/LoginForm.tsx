@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useFormik } from 'formik'
 import { useMutation } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { login } from '@/lib/api/auth'
@@ -31,6 +32,9 @@ export function LoginForm() {
     onSuccess: (data) => {
       loginUser(data.user, data.tokens.access, data.tokens.refresh)
       router.push('/notes')
+    },
+    onError: () => {
+      toast.error('Invalid email or password')
     },
   })
 

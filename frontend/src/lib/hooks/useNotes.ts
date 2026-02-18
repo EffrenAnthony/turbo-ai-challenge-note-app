@@ -5,5 +5,7 @@ export function useNotes() {
   return useQuery({
     queryKey: ['notes'],
     queryFn: getNotes,
+    staleTime: 0,
+    gcTime: 0,
   })
 }
